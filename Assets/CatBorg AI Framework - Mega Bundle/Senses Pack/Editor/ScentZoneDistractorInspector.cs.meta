@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7a442e85e3332954692b91533a454309
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345466
+  packageName: "Senses 3\u2013 AI Vision, Hearing & Smell System"
+  packageVersion: 3.0.3 Fixer33 Update
+  assetPath: Assets/CatBorg AI Framework - Mega Bundle/Senses Pack/Editor/ScentZoneDistractorInspector.cs
+  uploadId: 1028020

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: de4d4d5901594b84e87993b33a67677e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 95df6c626ce04de4ea3dc81e321b1e6d, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345466
+  packageName: "Senses 3\u2013 AI Vision, Hearing & Smell System"
+  packageVersion: 3.0.3 Fixer33 Update
+  assetPath: Assets/CatBorg AI Framework - Mega Bundle/Senses Pack/Scripts/RedHandedZone.cs
+  uploadId: 1028020

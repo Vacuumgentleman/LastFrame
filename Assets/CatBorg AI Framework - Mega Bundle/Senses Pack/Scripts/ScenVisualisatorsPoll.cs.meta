@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f6e96b9d85c584d4e9d6d273257d2fb7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345466
+  packageName: "Senses 3\u2013 AI Vision, Hearing & Smell System"
+  packageVersion: 3.0.3 Fixer33 Update
+  assetPath: Assets/CatBorg AI Framework - Mega Bundle/Senses Pack/Scripts/ScenVisualisatorsPoll.cs
+  uploadId: 1028020

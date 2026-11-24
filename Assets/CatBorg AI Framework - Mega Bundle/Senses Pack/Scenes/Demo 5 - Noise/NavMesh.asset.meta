@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 50108e4166dddfa45925b78d73a3a1c4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 23800000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345466
+  packageName: "Senses 3\u2013 AI Vision, Hearing & Smell System"
+  packageVersion: 3.0.3 Fixer33 Update
+  assetPath: Assets/CatBorg AI Framework - Mega Bundle/Senses Pack/Scenes/Demo 5
+    - Noise/NavMesh.asset
+  uploadId: 1028020

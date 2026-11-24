@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a5f8d38519b0f9048a9f3659145d4692
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 345466
+  packageName: "Senses 3\u2013 AI Vision, Hearing & Smell System"
+  packageVersion: 3.0.3 Fixer33 Update
+  assetPath: Assets/CatBorg AI Framework - Mega Bundle/Senses Pack/Editor/NoiseInspector.cs
+  uploadId: 1028020
