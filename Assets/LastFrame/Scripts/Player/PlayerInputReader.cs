@@ -24,11 +24,17 @@ namespace LastFrame.Player // Player scripts of Last Frame
         InputAction m_move; // WASD / arrows / left stick
         InputAction m_sprint; // Shift / left stick press
         InputAction m_crouch; // Ctrl / gamepad east button
+        InputAction m_attack; // Left click / gamepad west button
+        InputAction m_switchWeapon; // Q / gamepad right shoulder
+        InputAction m_pointer; // Mouse position on screen
 
         public Vector2 Move { get; private set; } // Movement input, magnitude 0 to 1
         public bool SprintHeld { get; private set; } // True while the run key is held
         public bool CrouchHeld { get; private set; } // True while the crouch key is held
         public bool CrouchPressedThisFrame { get; private set; } // True only on the frame the crouch key goes down
+        public bool AttackPressedThisFrame { get; private set; } // True only on the frame left click goes down
+        public bool SwitchWeaponPressedThisFrame { get; private set; } // True only on the frame Q goes down
+        public Vector2 PointerPosition { get; private set; } // Mouse position in screen pixels (for aiming)
         public CrouchMode CrouchMode => m_crouchMode; // Read-only access to the crouch mode
 
         public event Action<CrouchMode> OnCrouchModeChanged; // Raised when the options menu changes the mode
@@ -57,6 +63,16 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_crouch.AddBinding("<Keyboard>/leftCtrl"); // Left Ctrl (GDD)
             m_crouch.AddBinding("<Keyboard>/rightCtrl"); // Right Ctrl
             m_crouch.AddBinding("<Gamepad>/buttonEast"); // Gamepad B / Circle
+
+            m_attack = new InputAction("Attack", InputActionType.Button); // Attack action
+            m_attack.AddBinding("<Mouse>/leftButton"); // Left click (GDD)
+            m_attack.AddBinding("<Gamepad>/buttonWest"); // Gamepad X / Square
+
+            m_switchWeapon = new InputAction("SwitchWeapon", InputActionType.Button); // Weapon switch action
+            m_switchWeapon.AddBinding("<Keyboard>/q"); // Q (GDD)
+            m_switchWeapon.AddBinding("<Gamepad>/rightShoulder"); // Gamepad RB / R1
+
+            m_pointer = new InputAction("Pointer", InputActionType.PassThrough, "<Pointer>/position"); // Mouse or touch position
         }
 
         // Turns the input actions on when the component is enabled.
@@ -65,6 +81,9 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_move.Enable(); // Start reading movement
             m_sprint.Enable(); // Start reading run
             m_crouch.Enable(); // Start reading crouch
+            m_attack.Enable(); // Start reading attack
+            m_switchWeapon.Enable(); // Start reading weapon switch
+            m_pointer.Enable(); // Start reading mouse position
         }
 
         // Turns the input actions off and clears the values so the player stops.
@@ -73,8 +92,12 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_move.Disable(); // Stop reading movement
             m_sprint.Disable(); // Stop reading run
             m_crouch.Disable(); // Stop reading crouch
+            m_attack.Disable(); // Stop reading attack
+            m_switchWeapon.Disable(); // Stop reading weapon switch
+            m_pointer.Disable(); // Stop reading mouse position
             Move = Vector2.zero; // No movement while disabled
             SprintHeld = CrouchHeld = CrouchPressedThisFrame = false; // No buttons while disabled
+            AttackPressedThisFrame = SwitchWeaponPressedThisFrame = false; // No attack or switch while disabled
         }
 
         // Frees the input actions when the object is destroyed.
@@ -83,6 +106,9 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_move?.Dispose(); // Release movement action
             m_sprint?.Dispose(); // Release run action
             m_crouch?.Dispose(); // Release crouch action
+            m_attack?.Dispose(); // Release attack action
+            m_switchWeapon?.Dispose(); // Release weapon switch action
+            m_pointer?.Dispose(); // Release pointer action
         }
 
         // Reads the current input once per frame.
@@ -92,6 +118,9 @@ namespace LastFrame.Player // Player scripts of Last Frame
             SprintHeld = m_sprint.IsPressed(); // Run key state
             CrouchHeld = m_crouch.IsPressed(); // Crouch key state
             CrouchPressedThisFrame = m_crouch.WasPressedThisFrame(); // Crouch key just pressed
+            AttackPressedThisFrame = m_attack.WasPressedThisFrame(); // Left click just pressed
+            SwitchWeaponPressedThisFrame = m_switchWeapon.WasPressedThisFrame(); // Q just pressed
+            PointerPosition = m_pointer.ReadValue<Vector2>(); // Current mouse position
         }
 
         // Changes the crouch mode (called by the options menu) and optionally saves it.
