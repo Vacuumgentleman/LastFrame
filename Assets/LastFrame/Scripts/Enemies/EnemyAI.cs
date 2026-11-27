@@ -9,11 +9,12 @@ using UnityEngine.AI; // NavMeshAgent
 namespace LastFrame.Enemies // Enemy scripts of Last Frame
 {
     public enum EnemyState { Patrol, Investigate, Chase, Dead } // GDD state machine (Stunned removed: one-hit kill)
-    public enum EnemyStimulus { None, Seen, Heard, InkImpact } // Why the enemy is going to its last known position
+    public enum EnemyStimulus { None, Seen, Glimpsed, Heard, Smelled, InkImpact } // Why the enemy is going to its last known position
 
     /// <summary>
     /// AI cartoon behaviour: patrols, investigates what it hears and chases Ollie when it sees her.
-    /// Perception comes from the Senses component (configured by Sebas); this script decides what to do with it.
+    /// Perception comes only from the Senses component (sight, hearing, smell awareness 0-100); this script decides what to do with it:
+    /// suspicion threshold = "?" (investigate), alert threshold = "!" (chase). Ink impacts arrive as point noises (NoiseEvents).
     /// </summary>
     [DisallowMultipleComponent] // One brain per enemy
     [RequireComponent(typeof(NavMeshAgent))] // Moves on the NavMesh
@@ -37,30 +38,29 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         [SerializeField] float m_attackCooldown = 1.2f; // Seconds between eraser hits
 
         [Header("Senses")] // Inspector group title
-        [Tooltip("Test 26/11: untick to make the enemy blind (only hearing). Vision made hiding almost impossible; the team will decide.")]
+        [Tooltip("Untick to make the enemy blind (only hearing and smell).")]
         [SerializeField] bool m_useVision = true; // False = the enemy never sees Ollie
-        [SerializeField] FactionNames m_targetFaction = FactionNames.Faction1; // Ollie's faction
-        [SerializeField] float m_requiredAwareness = 1f; // Awareness needed to react
+        [Tooltip("Awareness (0-100) at which the enemy gets suspicious and investigates: '?'. Provisional, to agree with Sebas.")]
+        [SerializeField, Range(1, 100)] int m_suspicionAwareness = 20; // Demos use 20-50
+        [Tooltip("Sight awareness (0-100) at which the enemy recognises Ollie and chases her: '!'. Provisional, to agree with Sebas.")]
+        [SerializeField, Range(1, 100)] int m_alertAwareness = 50; // Must be higher than suspicion
+        [Tooltip("Factions whose noises the enemy reacts to: Ollie (Faction1) and noise traps / distractions (None).")]
+        [SerializeField] FactionNames[] m_hearFactions = { FactionNames.Faction1, FactionNames.None }; // Ollie + objects that make noise
         [SerializeField] float m_arriveDistance = 0.6f; // Distance that counts as "arrived"
-        [Tooltip("Eye height used to confirm line of sight (Senses keeps a memory, so we double-check).")]
-        [SerializeField] float m_eyeHeight = 1.5f; // Same as the Senses eye offset
-        [SerializeField] LayerMask m_visionBlockers = ~0; // What blocks the view (walls, props)
-        [Tooltip("Vision range multiplier while Ollie is crouching (GDD: crouching reduces detection range).")]
-        [SerializeField, Range(0.1f, 1f)] float m_crouchVisionMultiplier = 0.5f; // Half range when crouching
-        [Tooltip("A heard position closer than this to the last investigated one is treated as the same noise.")]
-        [SerializeField] float m_sameNoiseDistance = 0.75f; // Avoids re-investigating Senses' remembered noise
 
         NavMeshAgent m_agent; // Cached NavMeshAgent
         Senses m_senses; // Cached Senses component
-        FactionNames[] m_factionFilter; // Filter array for Senses queries (no garbage per frame)
         int m_patrolIndex; // Current patrol point
         float m_stateTimer; // Generic timer used by each state
         float m_lastSeenTime; // Time when Ollie was last seen
         float m_nextAttackTime; // Time when the eraser can hit again
         Vector3 m_targetPosition; // Where the enemy is going (noise or last seen position)
         Transform m_target; // Ollie while chasing
-        Vector3 m_lastHeardPosition; // Last noise position already reacted to
-        bool m_hasHeard; // True after the first noise
+        TargetSenses m_ollieTarget; // Ollie's TargetSenses (what Senses tracks)
+        float m_prevSeeAwareness; // Sight awareness last frame (to know if it is rising or fading)
+        float m_prevHearAwareness; // Hearing awareness last frame (a rise means a new noise)
+        float m_prevSmellAwareness; // Smell awareness last frame (a rise means a fresh scent)
+        bool m_seeingNow; // True while sight awareness is not fading (Ollie in view, not just remembered)
 
         public EnemyState State { get; private set; } = EnemyState.Patrol; // Current state
         public bool IsAlerted => State == EnemyState.Chase; // IAlertable: true while chasing
@@ -68,19 +68,11 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         public Vector3 LastKnownPosition => m_targetPosition; // Where it believes Ollie is (debug and HUD)
         public EnemyStimulus LastStimulus { get; private set; } // What gave it that position (debug)
         public bool UseVision => m_useVision; // Read by the vision cone debug
-        PlayerMovement m_ollie; // Cached Ollie movement (crouch state) for the effective vision range
-
-        // Vision range against Ollie right now: Senses radius, halved while she crouches (used by the AI and the debug cone).
-        public float EffectiveVisionRange
-        {
-            get
-            {
-                if (!m_ollie) m_ollie = FindAnyObjectByType<PlayerMovement>(); // Find Ollie once
-                float range = m_senses ? m_senses.Central_VisionRadius : 0f; // Base range from Senses
-                if (m_ollie && m_ollie.IsCrouching) range *= m_crouchVisionMultiplier; // Crouching is harder to spot
-                return range; // Effective range
-            }
-        }
+        public float SeeAwareness { get; private set; } // Current sight awareness of Ollie (0-100, debug and HUD)
+        public float HearAwareness { get; private set; } // Current hearing awareness (0-100, debug)
+        public int SuspicionAwareness => m_suspicionAwareness; // Threshold for "?" (debug)
+        public int AlertAwareness => m_alertAwareness; // Threshold for "!" (debug)
+        public float EffectiveVisionRange => m_senses ? m_senses.Central_VisionRadius : 0f; // Central vision radius (stealth is applied by Senses itself)
         public event Action<EnemyState> OnStateChanged; // For the "?" / "!" label and audio
         public event Action<GameObject> OnAttack; // Raised when the eraser hits
 
@@ -89,7 +81,7 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         {
             m_agent = GetComponent<NavMeshAgent>(); // Required component
             m_senses = GetComponent<Senses>(); // Required component
-            m_factionFilter = new[] { m_targetFaction }; // Only look for Ollie's faction
+            if (!m_senses.Use_Forgeting) Debug.LogWarning($"[EnemyAI] {name}: enable 'Able To Forget' in Senses > Brain, otherwise the enemy never loses Ollie.", this); // Fading awareness is how we know she escaped
         }
 
         // Listens to point noises (ink impacts) while the enemy is active.
@@ -104,19 +96,16 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             NoiseEvents.OnPointNoise -= HandlePointNoise; // Unsubscribe
         }
 
-        // Hearing: goes to investigate a noise point if it happened within the noise radius (Ollie running or an ink impact).
+        // Ink impacts: the drop lands far from Ollie, so it is sent as a point noise (Senses would report Ollie's position instead).
         void HandlePointNoise(Vector3 position, float radius, NoiseSource source)
         {
-            if (State == EnemyState.Dead || State == EnemyState.Chase) return; // Busy or erased (sight drives the chase)
-            Vector3 flat = position - transform.position; // Distance to the noise
+            if (source != NoiseSource.InkImpact) return; // Footsteps are heard through Senses now
+            if (State == EnemyState.Dead || State == EnemyState.Chase) return; // Busy or erased
+            Vector3 flat = position - transform.position; // Distance to the impact
             flat.y = 0f; // Ignore height
             if (flat.magnitude > radius) return; // Too far to hear it
-            m_hasHeard = true; // Remember a noise was handled
-            m_lastHeardPosition = position; // Last heard point
-            m_targetPosition = position; // Go to the exact point of the noise
-            LastStimulus = source == NoiseSource.InkImpact ? EnemyStimulus.InkImpact : EnemyStimulus.Heard; // Reason for the debug label
-            Debug.Log($"[EnemyAI] {name} heard {source} at {position}, {flat.magnitude:0.0} m away (radius {radius:0.0} m, state was {State})", this); // Debug
-            SetState(EnemyState.Investigate); // Show "?" and walk there
+            Investigate(position, EnemyStimulus.InkImpact); // Go and check the splash
+            Debug.Log($"[EnemyAI] {name} heard an ink impact {flat.magnitude:0.0} m away", this); // Debug
         }
 
         // Starts patrolling.
@@ -140,39 +129,61 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             }
         }
 
-        // Asks Senses what the enemy sees or hears and changes state if needed.
+        // Reads Senses awareness (sight, hearing, smell) and decides between patrol, "?" and "!".
         void Sense()
         {
-            if (m_useVision && m_senses.WasAnythingSeen(m_requiredAwareness, out TargetSenses seen, out _, out _, out _, m_factionFilter, SeeSenseSearchType.Nearest, true) && CanReallySee(seen.transform)) // Ollie really in view (not just remembered)
+            if (!m_ollieTarget) // Find Ollie once
             {
-                m_target = seen.transform; // Remember who
-                m_targetPosition = seen.transform.position; // Remember where
-                m_lastSeenTime = Time.time; // Remember when
-                LastStimulus = EnemyStimulus.Seen; // Reason: seen
-                if (State != EnemyState.Chase) // First frame it sees her
-                {
-                    Debug.Log($"[EnemyAI] {name} SAW Ollie at {Vector3.Distance(transform.position, seen.transform.position):0.0} m (range {EffectiveVisionRange:0.0} m, crouching={m_ollie && m_ollie.IsCrouching})", this); // Debug
-                    SetState(EnemyState.Chase); // Start chasing
-                }
-                return; // Seeing wins over hearing
+                var ollie = FindAnyObjectByType<PlayerMovement>(); // Ollie's movement script
+                if (ollie) m_ollieTarget = ollie.GetComponent<TargetSenses>(); // What Senses tracks
+                if (!m_ollieTarget) return; // No Ollie in the scene
             }
 
-            // Hearing is handled by HandlePointNoise (NoiseEvents), not by Senses: its hearing reported noises far out of range.
+            // Sight: awareness rises while Ollie is in view and fades (Able To Forget) when she is gone.
+            float see = 0f; // Sight awareness this frame
+            if (m_useVision) m_senses.DidSee(m_ollieTarget, 0, out see, out _, out _); // Read it even below the thresholds
+            if (see > m_prevSeeAwareness) m_seeingNow = true; // Rising: she is in view
+            else if (see < m_prevSeeAwareness) m_seeingNow = false; // Fading: only a memory
+            if (see <= 0f) m_seeingNow = false; // Nothing at all
+            m_prevSeeAwareness = see; // Remember for next frame
+            SeeAwareness = see; // Expose for debug
+
+            if (m_seeingNow && see >= m_alertAwareness) // Recognised: chase
+            {
+                m_target = m_ollieTarget.transform; // Remember who
+                m_targetPosition = m_target.position; // Live position
+                m_lastSeenTime = Time.time; // Remember when
+                LastStimulus = EnemyStimulus.Seen; // Reason: seen
+                if (State != EnemyState.Chase) { Debug.Log($"[EnemyAI] {name} SAW Ollie (awareness {see:0})", this); SetState(EnemyState.Chase); } // "!"
+                return; // Seeing wins over the other senses
+            }
+            if (State == EnemyState.Chase) return; // Chasing: only sight matters (UpdateChase handles losing her)
+
+            if (m_seeingNow && see >= m_suspicionAwareness) // Something moved over there: "?"
+            {
+                Investigate(m_ollieTarget.transform.position, EnemyStimulus.Glimpsed); // Walk toward the glimpse
+                return; // Sight wins over hearing
+            }
+
+            // Hearing: a rise in awareness means a new noise (Ollie's steps or a noise trap like the pencil shavings).
+            bool heard = m_senses.WasAnythingHeard(m_suspicionAwareness, out _, out float hear, out Vector3 soundPos, m_hearFactions, HearSenseSearchType.HighestAwarness); // Loudest noise
+            if (heard && hear > m_prevHearAwareness + 0.01f) Investigate(soundPos, EnemyStimulus.Heard); // Go where it sounded
+            m_prevHearAwareness = heard ? hear : 0f; // Remember for next frame
+            HearAwareness = m_prevHearAwareness; // Expose for debug
+
+            // Smell: a rise means a fresher scent node (e.g. Ollie bleeding ink).
+            bool smelled = m_senses.DidSmell(m_ollieTarget, m_suspicionAwareness, out float smell, out Vector3 scentPos, out _); // Ollie's trail
+            if (smelled && smell > m_prevSmellAwareness + 0.01f) Investigate(scentPos, EnemyStimulus.Smelled); // Follow the trail
+            m_prevSmellAwareness = smelled ? smell : 0f; // Remember for next frame
         }
 
-        // Confirms Ollie is inside the vision cone and nothing blocks the view (Senses may report a remembered target).
-        bool CanReallySee(Transform target)
+        // Goes to a point of interest with "?" (re-paths if it is already investigating).
+        void Investigate(Vector3 point, EnemyStimulus reason)
         {
-            Vector3 eyes = transform.position + Vector3.up * m_eyeHeight; // Eye position
-            Collider body = target.GetComponent<Collider>(); // Ollie's capsule (lower when crouching)
-            Vector3 targetPoint = body ? body.bounds.center : target.position + Vector3.up * 1f; // Center of her body
-            Vector3 toTarget = targetPoint - eyes; // Direction to Ollie
-            Vector3 flat = new Vector3(toTarget.x, 0f, toTarget.z); // Ignore height for the cone check
-            if (flat.magnitude > EffectiveVisionRange) return false; // Too far (shorter when Ollie crouches)
-            if (Vector3.Angle(transform.forward, flat) > m_senses.Central_VisionAngle * 0.5f) return false; // Outside the cone
-            if (Physics.Linecast(eyes, targetPoint, out RaycastHit hit, m_visionBlockers, QueryTriggerInteraction.Ignore)) // Something in between?
-                return hit.transform == target || hit.transform.IsChildOf(target); // Only Ollie herself may be hit
-            return true; // Clear view
+            m_targetPosition = point; // Where to look
+            LastStimulus = reason; // Why
+            if (State == EnemyState.Investigate) { m_stateTimer = m_lookAroundTime; GoTo(point, m_investigateSpeed); return; } // Update the destination
+            SetState(EnemyState.Investigate); // Show "?" and walk there
         }
 
         // Walks between patrol points and waits a moment at each one.

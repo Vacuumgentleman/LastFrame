@@ -38,10 +38,16 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             if (m_ai) m_ai.OnStateChanged -= Apply; // Unsubscribe
         }
 
-        // Keeps the reason text up to date (it can change without a state change, e.g. heard again while investigating).
+        [Tooltip("Debug: shows the sight awareness (0-100) under the symbol.")]
+        [SerializeField] bool m_showAwareness = true; // Evidence of how Senses perceives Ollie
+
+        // Keeps the label up to date (reason and awareness can change without a state change).
         void LateUpdate()
         {
-            if (m_ai && m_label && m_ai.State == EnemyState.Investigate) m_label.text = "?" + ReasonText(m_ai.LastStimulus); // "? (heard)" / "? (ink)"
+            if (!m_ai || !m_label || m_ai.State == EnemyState.Dead) return; // Nothing to show
+            string symbol = m_ai.State == EnemyState.Chase ? "!" : m_ai.State == EnemyState.Investigate ? "?" + ReasonText(m_ai.LastStimulus) : ""; // GDD symbols
+            string awareness = m_showAwareness && m_ai.SeeAwareness > 0f ? $"\n<size=35%>{m_ai.SeeAwareness:0}/{m_ai.AlertAwareness}</size>" : ""; // e.g. "34/50"
+            m_label.text = symbol + awareness; // Final label
         }
 
         // Short debug text for the reason the enemy is investigating.
@@ -52,6 +58,8 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
                 case EnemyStimulus.Heard: return "\n<size=40%>(heard)</size>"; // Heard Ollie running
                 case EnemyStimulus.InkImpact: return "\n<size=40%>(ink)</size>"; // Ink drop impact
                 case EnemyStimulus.Seen: return "\n<size=40%>(last seen)</size>"; // Lost sight, checking last seen spot
+                case EnemyStimulus.Glimpsed: return "\n<size=40%>(glimpse)</size>"; // Saw something, not sure yet
+                case EnemyStimulus.Smelled: return "\n<size=40%>(smell)</size>"; // Following a scent
                 default: return ""; // No reason
             }
         }
