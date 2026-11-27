@@ -365,6 +365,7 @@ MonoBehaviour:
   m_scaleRoot: {fileID: 2068123658}
   m_weapons: {fileID: 0}
   m_ammo: {fileID: 0}
+  m_stealth: {fileID: 0}
   m_idleColor: {r: 0.85, g: 0.85, b: 0.85, a: 1}
   m_walkColor: {r: 0.3, g: 0.8, b: 0.35, a: 1}
   m_runColor: {r: 0.95, g: 0.45, b: 0.15, a: 1}
@@ -373,6 +374,11 @@ MonoBehaviour:
   m_walkText: WALK
   m_runText: RUN
   m_crouchText: CROUCH
+  m_eyeClosedFrom: 0.66
+  m_eyeHalfFrom: 0.33
+  m_eyeOpenColor: {r: 0.95, g: 0.35, b: 0.3, a: 1}
+  m_eyeHalfColor: {r: 1, g: 0.8, b: 0.3, a: 1}
+  m_eyeClosedColor: {r: 0.45, g: 0.9, b: 0.5, a: 1}
   m_crouchScaleY: 0.6
   m_scaleSpeed: 12
 --- !u!114 &315843626
@@ -1916,9 +1922,6 @@ PrefabInstance:
       addedObject: {fileID: 1359666861}
     - targetCorrespondingSourceObject: {fileID: 9049297351449664001, guid: efb41ada638340c47a3fe53fb0651a9f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1359666860}
-    - targetCorrespondingSourceObject: {fileID: 9049297351449664001, guid: efb41ada638340c47a3fe53fb0651a9f, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1359666864}
     - targetCorrespondingSourceObject: {fileID: 9049297351449664001, guid: efb41ada638340c47a3fe53fb0651a9f, type: 3}
       insertIndex: -1
@@ -1998,21 +2001,6 @@ MonoBehaviour:
   <ScentZoneModificationValue>k__BackingField: 0
   m_helpPropertiesFoldout: 0
   m_zonerScentAddonFoldout: 0
---- !u!114 &1359666860
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1359666847}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea1aae03881728443ab5d66b139ce2ce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LastFrame.Player.PlayerNoise
-  m_runNoiseRadius: 5
-  m_enemyHearingThresholdDb: 5
-  m_runNoiseInterval: 0.4
 --- !u!114 &1359666861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2100,6 +2088,8 @@ MonoBehaviour:
   m_color: {r: 1, g: 0.5, b: 0.15, a: 0.9}
   m_lineWidth: 0.06
   m_growSpeed: 10
+  m_runNoiseDb: 60
+  m_referenceEnemy: {fileID: 0}
 --- !u!1 &1365256785
 GameObject:
   m_ObjectHideFlags: 0

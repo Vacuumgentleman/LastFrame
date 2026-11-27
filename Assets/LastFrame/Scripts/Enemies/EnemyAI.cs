@@ -46,6 +46,8 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         [SerializeField, Range(1, 100)] int m_alertAwareness = 50; // Must be higher than suspicion
         [Tooltip("Hearing awareness = dB that reach the enemy (noise dB - 20*log10(distance)). The enemy investigates when it is at least this value.\nRadius at which a noise is heard = 10^((noise dB - this) / 20). 41 -> running (60 dB, demo clips) heard at ~8 m (GDD), walking (20-30 dB) almost silent. Provisional.")]
         [SerializeField, Range(1, 100)] int m_hearAwareness = 41; // Received dB needed to react to a noise
+        [Tooltip("Optional second Senses (hearing only) on a child object, e.g. \"Ears\". Senses lowers sight awareness when sight and hearing share one component (Ollie's steps keep hitting it), like the demos that never mix them. Empty = the first child Senses, or this one.")]
+        [SerializeField] Senses m_hearingSenses; // Ears: hearing-only Senses
         [Tooltip("Factions whose noises the enemy reacts to: Ollie (Faction1) and noise traps / distractions (None).")]
         [SerializeField] FactionNames[] m_hearFactions = { FactionNames.Faction1, FactionNames.None }; // Ollie + objects that make noise
         [SerializeField] float m_arriveDistance = 0.6f; // Distance that counts as "arrived"
@@ -86,6 +88,9 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         {
             m_agent = GetComponent<NavMeshAgent>(); // Required component
             m_senses = GetComponent<Senses>(); // Required component
+            if (!m_hearingSenses) foreach (var child in GetComponentsInChildren<Senses>()) if (child != m_senses) { m_hearingSenses = child; break; } // Child "Ears" if any
+            if (!m_hearingSenses) m_hearingSenses = m_senses; // Fall back to the main Senses (demo sentries that only hear)
+            if (m_hearingSenses != m_senses && m_hearingSenses.Use_Forgeting == false) Debug.LogWarning($"[EnemyAI] {name}: enable 'Able To Forget' on the Ears Senses too.", this); // Hearing awareness must fade
             if (!m_senses.Use_Forgeting) Debug.LogWarning($"[EnemyAI] {name}: enable 'Able To Forget' in Senses > Brain, otherwise the enemy never loses Ollie.", this); // Fading awareness is how we know she escaped
         }
 
@@ -171,7 +176,7 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             }
 
             // Hearing: a rise in awareness means a new noise (Ollie's steps or a noise trap like the pencil shavings).
-            bool heard = m_senses.WasAnythingHeard(m_hearAwareness, out _, out float hear, out Vector3 soundPos, m_hearFactions, HearSenseSearchType.HighestAwarness); // Loudest noise
+            bool heard = m_hearingSenses.WasAnythingHeard(m_hearAwareness, out _, out float hear, out Vector3 soundPos, m_hearFactions, HearSenseSearchType.HighestAwarness); // Loudest noise
             if (heard && hear > m_prevHearAwareness + 0.01f) Investigate(soundPos, EnemyStimulus.Heard); // Go where it sounded
             m_prevHearAwareness = heard ? hear : 0f; // Remember for next frame
             HearAwareness = m_prevHearAwareness; // Expose for debug
@@ -307,6 +312,7 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         {
             foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false; // No more hits or blocking
             m_senses.enabled = false; // Stop sensing
+            if (m_hearingSenses) m_hearingSenses.enabled = false; // Stop hearing too
             Vector3 start = transform.localScale; // Normal size
             Vector3 end = new Vector3(start.x * 1.3f, 0.05f, start.z * 1.3f); // Puddle size
             float t = 0f; // Animation time

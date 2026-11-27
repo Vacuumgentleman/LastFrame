@@ -251,6 +251,7 @@ MonoBehaviour:
   m_investigateColor: {r: 1, g: 0.6, b: 0.1, a: 1}
   m_chaseColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   m_deadColor: {r: 0.15, g: 0.15, b: 0.45, a: 1}
+  m_showAwareness: 1
 --- !u!1 &7700951505565068983
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,6 +292,7 @@ Transform:
   m_Children:
   - {fileID: 3314533856997212942}
   - {fileID: 2530305420067847478}
+  - {fileID: 4414062665230992102}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3594551284663860036
@@ -335,7 +337,7 @@ MonoBehaviour:
   m_eyes: {fileID: 4159828527859460099}
   m_use_See: 1
   m_fov: {fileID: 0}
-  m_use_Hear: 1
+  m_use_Hear: 0
   m_use_Smell: 0
   IgnoreLayers:
     serializedVersion: 2
@@ -369,7 +371,7 @@ MonoBehaviour:
   m_peripheral_VisionAngle: 0
   m_peripheral_VisionRadius: 0
   m_use_DisplayFOV: 0
-  <Use_IgnoreRotationX>k__BackingField: 0
+  <Use_IgnoreRotationX>k__BackingField: 1
   <Use_RayCastInFovOnly>k__BackingField: 0
   <Use_DebugDrawRay>k__BackingField: 0
   <Use_OffsetRotation>k__BackingField: 0
@@ -450,15 +452,12 @@ MonoBehaviour:
   m_attackRange: 1.3
   m_attackCooldown: 1.2
   m_useVision: 1
-  m_targetFaction: 1
-  m_requiredAwareness: 1
+  m_suspicionAwareness: 20
+  m_alertAwareness: 50
+  m_hearAwareness: 41
+  m_hearingSenses: {fileID: 5560448655144386895}
+  m_hearFactions: 0100000000000000
   m_arriveDistance: 0.6
-  m_eyeHeight: 1.5
-  m_visionBlockers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_crouchVisionMultiplier: 0.5
-  m_sameNoiseDistance: 0.75
 --- !u!114 &1574110540886492316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -494,7 +493,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LastFrame.Enemies.HearingRangeDisplay
   m_color: {r: 0.6, g: 0.8, b: 1, a: 0.6}
   m_lineWidth: 0.04
-  m_playerNoise: {fileID: 0}
+  m_referenceNoiseDb: 60
 --- !u!114 &1558718304482328182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -511,6 +510,101 @@ MonoBehaviour:
   m_chaseColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   m_lineWidth: 0.05
   m_markerRadius: 0.4
+--- !u!1 &8257593776170309235
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4414062665230992102}
+  - component: {fileID: 5560448655144386895}
+  m_Layer: 0
+  m_Name: Ears
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4414062665230992102
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8257593776170309235}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4159828527859460099}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5560448655144386895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8257593776170309235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ab9691dcb3a1f54fb0be660a0ce51ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Senses2026.Senses
+  m_eyes: {fileID: 0}
+  m_use_See: 0
+  m_fov: {fileID: 0}
+  m_use_Hear: 1
+  m_use_Smell: 0
+  IgnoreLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_seeLayersSolution: 0
+  m_seeTargetLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_seeBlockingLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_initialColliderBufferSize: 25
+  m_use_Forgeting: 1
+  <Forgeting_Rate>k__BackingField: 1
+  m_use_ignoreOwnFaction: 0
+  m_use_PerfectLineOfViewCheck: 0
+  m_use_debug_Detected: 0
+  m_requiredAwarness: 1
+  RequiredFactions: 0
+  <SelectedFactionNameIndices>k__BackingField: 
+  m_requiredFactions: 
+  m_seePropertiesFoldout: 0
+  m_hearPropertiesFoldout: 0
+  m_smellPropertiesFoldout: 0
+  m_brainPropertiesFoldout: 0
+  m_settingsPropertiesFoldout: 0
+  m_helpPropertiesFoldout: 0
+  m_central_VisionAngle: 0
+  m_central_VisionRadius: 0
+  m_use_PeripheralFOV: 0
+  m_peripheral_VisionAngle: 0
+  m_peripheral_VisionRadius: 0
+  m_use_DisplayFOV: 0
+  <Use_IgnoreRotationX>k__BackingField: 0
+  <Use_RayCastInFovOnly>k__BackingField: 0
+  <Use_DebugDrawRay>k__BackingField: 0
+  <Use_OffsetRotation>k__BackingField: 0
+  <Offset_Rotation>k__BackingField: {x: 0, y: 0, z: 0}
+  <Use_OffsetPosition>k__BackingField: 0
+  <Offset_Position>k__BackingField: {x: 0, y: 0, z: 0}
+  Hear_Sensitivity: 2
+  m_smell_Radius: 0
+  m_use_CustomRefreshRateSmell: 0
+  <Cooldown_SmellTimeAmount>k__BackingField: 0
+  ScentLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &9116271421024190878
 GameObject:
   m_ObjectHideFlags: 0
