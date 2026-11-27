@@ -1,4 +1,5 @@
 using LastFrame.Weapons; // WeaponSwitcher
+using Senses2026; // Stealth (total stealth buff)
 using TMPro; // TextMeshPro world text
 using UnityEngine; // MonoBehaviour, SpriteRenderer, Color
 
@@ -23,6 +24,8 @@ namespace LastFrame.Player // Player scripts of Last Frame
         [SerializeField] WeaponSwitcher m_weapons; // Source of the equipped weapon
         [Tooltip("Optional: shows the ink left next to the weapon.")]
         [SerializeField] InkAmmo m_ammo; // Source of the ink amount
+        [Tooltip("Optional: shows the Senses total stealth % and the eye state (proposal for the HUD stealth eye).")]
+        [SerializeField] Stealth m_stealth; // Source of the total stealth buff (base + light + grass)
 
         [Header("Colors")] // Inspector group title
         [SerializeField] Color m_idleColor = new Color(0.85f, 0.85f, 0.85f); // Light gray when standing still
@@ -35,6 +38,15 @@ namespace LastFrame.Player // Player scripts of Last Frame
         [SerializeField] string m_walkText = "WALK"; // Text when walking
         [SerializeField] string m_runText = "RUN"; // Text when running
         [SerializeField] string m_crouchText = "CROUCH"; // Text when crouching
+
+        [Header("Stealth eye (proposal, to agree with Sebas)")] // Inspector group title
+        [Tooltip("Total stealth at or above this = eye closed (well hidden).")]
+        [SerializeField, Range(0f, 1f)] float m_eyeClosedFrom = 0.66f; // Top third (2/3 = crouched in full grass, no light bonus)
+        [Tooltip("Total stealth at or above this = eye half closed. Below = eye open (exposed).")]
+        [SerializeField, Range(0f, 1f)] float m_eyeHalfFrom = 0.33f; // Middle third (1/3 = crouched in the open)
+        [SerializeField] Color m_eyeOpenColor = new Color(0.95f, 0.35f, 0.3f); // Red: exposed
+        [SerializeField] Color m_eyeHalfColor = new Color(1f, 0.8f, 0.3f); // Yellow: partly hidden
+        [SerializeField] Color m_eyeClosedColor = new Color(0.45f, 0.9f, 0.5f); // Green: well hidden
 
         [Header("Crouch squash")] // Inspector group title
         [Tooltip("Sprite height multiplier while crouching, so the change is visible.")]
@@ -53,6 +65,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
             if (!m_label) m_label = GetComponentInChildren<TextMeshPro>(); // Label under this object
             if (!m_weapons) m_weapons = GetComponentInParent<WeaponSwitcher>(); // Weapons are on the Player root
             if (!m_ammo) m_ammo = GetComponentInParent<InkAmmo>(); // Ink is on the Player root
+            if (!m_stealth) m_stealth = GetComponentInParent<Stealth>(); // Senses Stealth is on the Player root
             if (!m_scaleRoot && m_sprite) m_scaleRoot = m_sprite.transform; // Default squash target
             if (m_scaleRoot) m_baseScale = m_scaleRoot.localScale; // Remember standing size
         }
@@ -91,6 +104,17 @@ namespace LastFrame.Player // Player scripts of Last Frame
             if (m_label) m_label.color = color; // Same color as the sprite
         }
 
+        // Third line: Senses total stealth (works while standing too: light and grass still count) and the eye state by range.
+        string StealthText()
+        {
+            float stealth = m_stealth.ProvideTotalStealthBuff(); // 0 = fully exposed, 1 = invisible
+            string eye; Color color; // Eye state and its color
+            if (stealth >= m_eyeClosedFrom) { eye = "OJO CERRADO"; color = m_eyeClosedColor; } // Well hidden
+            else if (stealth >= m_eyeHalfFrom) { eye = "OJO MEDIO"; color = m_eyeHalfColor; } // Partly hidden
+            else { eye = "OJO ABIERTO"; color = m_eyeOpenColor; } // Exposed
+            return $"<size=60%><color=#{ColorUtility.ToHtmlStringRGB(color)}>SIGILO {Mathf.RoundToInt(stealth * 100f)}% · {eye}</color></size>"; // Colored line
+        }
+
         // Writes "STATE" plus "WEAPON · ink" on a second line, only when something changed.
         void UpdateLabel()
         {
@@ -102,6 +126,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
                 if (m_ammo) text += " · " + m_ammo.Current; // Ink left
                 text += "</size>"; // Close size tag
             }
+            if (m_stealth) text += "\n" + StealthText(); // "SIGILO 67% · OJO CERRADO"
             if (text == m_lastLabel) return; // Nothing new
             m_lastLabel = text; // Remember it
             m_label.text = text; // Write it

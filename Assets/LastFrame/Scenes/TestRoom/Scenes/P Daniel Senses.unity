@@ -5649,6 +5649,7 @@ MonoBehaviour:
   m_scaleRoot: {fileID: 1387137730}
   m_weapons: {fileID: 0}
   m_ammo: {fileID: 0}
+  m_stealth: {fileID: 0}
   m_idleColor: {r: 0.85, g: 0.85, b: 0.85, a: 1}
   m_walkColor: {r: 0.3, g: 0.8, b: 0.35, a: 1}
   m_runColor: {r: 0.95, g: 0.45, b: 0.15, a: 1}
@@ -5657,6 +5658,11 @@ MonoBehaviour:
   m_walkText: WALK
   m_runText: RUN
   m_crouchText: CROUCH
+  m_eyeClosedFrom: 0.667
+  m_eyeHalfFrom: 0.333
+  m_eyeOpenColor: {r: 0.95, g: 0.35, b: 0.3, a: 1}
+  m_eyeHalfColor: {r: 1, g: 0.8, b: 0.3, a: 1}
+  m_eyeClosedColor: {r: 0.45, g: 0.9, b: 0.5, a: 1}
   m_crouchScaleY: 0.6
   m_scaleSpeed: 12
 --- !u!114 &115125602
@@ -67149,7 +67155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -30, y: 316}
+  m_AnchoredPosition: {x: -29.999939, y: 316}
   m_SizeDelta: {x: 345.68457, y: 203}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1294354095
