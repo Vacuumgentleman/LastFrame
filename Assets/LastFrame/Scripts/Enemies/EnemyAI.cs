@@ -44,6 +44,8 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         [SerializeField, Range(1, 100)] int m_suspicionAwareness = 20; // Demos use 20-50
         [Tooltip("Sight awareness (0-100) at which the enemy recognises Ollie and chases her: '!'. Provisional, to agree with Sebas.")]
         [SerializeField, Range(1, 100)] int m_alertAwareness = 50; // Must be higher than suspicion
+        [Tooltip("Hearing awareness = dB that reach the enemy (noise dB - 20*log10(distance)). The enemy investigates when it is at least this value.\nRadius at which a noise is heard = 10^((noise dB - this) / 20). 41 -> running (60 dB, demo clips) heard at ~8 m (GDD), walking (20-30 dB) almost silent. Provisional.")]
+        [SerializeField, Range(1, 100)] int m_hearAwareness = 41; // Received dB needed to react to a noise
         [Tooltip("Factions whose noises the enemy reacts to: Ollie (Faction1) and noise traps / distractions (None).")]
         [SerializeField] FactionNames[] m_hearFactions = { FactionNames.Faction1, FactionNames.None }; // Ollie + objects that make noise
         [SerializeField] float m_arriveDistance = 0.6f; // Distance that counts as "arrived"
@@ -72,6 +74,9 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         public float HearAwareness { get; private set; } // Current hearing awareness (0-100, debug)
         public int SuspicionAwareness => m_suspicionAwareness; // Threshold for "?" (debug)
         public int AlertAwareness => m_alertAwareness; // Threshold for "!" (debug)
+        public int HearThreshold => m_hearAwareness; // Received dB needed to investigate a noise (debug)
+        // Distance at which a noise of this strength is heard with the current hearing threshold (debug ring, design tuning).
+        public float HearingRadiusFor(float noiseDb) => Mathf.Pow(10f, (noiseDb - m_hearAwareness) / 20f);
         public float EffectiveVisionRange => m_senses ? m_senses.Central_VisionRadius : 0f; // Central vision radius (stealth is applied by Senses itself)
         public event Action<EnemyState> OnStateChanged; // For the "?" / "!" label and audio
         public event Action<GameObject> OnAttack; // Raised when the eraser hits
@@ -166,7 +171,7 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             }
 
             // Hearing: a rise in awareness means a new noise (Ollie's steps or a noise trap like the pencil shavings).
-            bool heard = m_senses.WasAnythingHeard(m_suspicionAwareness, out _, out float hear, out Vector3 soundPos, m_hearFactions, HearSenseSearchType.HighestAwarness); // Loudest noise
+            bool heard = m_senses.WasAnythingHeard(m_hearAwareness, out _, out float hear, out Vector3 soundPos, m_hearFactions, HearSenseSearchType.HighestAwarness); // Loudest noise
             if (heard && hear > m_prevHearAwareness + 0.01f) Investigate(soundPos, EnemyStimulus.Heard); // Go where it sounded
             m_prevHearAwareness = heard ? hear : 0f; // Remember for next frame
             HearAwareness = m_prevHearAwareness; // Expose for debug
