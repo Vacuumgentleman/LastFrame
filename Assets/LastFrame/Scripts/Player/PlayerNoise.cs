@@ -1,33 +1,36 @@
-using Senses2026; // Senses Noise component
+using LastFrame.Core; // NoiseEvents
 using UnityEngine; // MonoBehaviour, Time
 
 namespace LastFrame.Player // Player scripts of Last Frame
 {
     /// <summary>
-    /// Emits Senses noise while Ollie runs. Walking and crouching are silent.
+    /// Makes noise while Ollie runs. Walking and crouching are silent.
+    /// Enemies closer than the radius hear the exact point where she was (NoiseEvents), nothing farther.
     /// </summary>
     [DisallowMultipleComponent] // Only one noise emitter per player
     [RequireComponent(typeof(PlayerMovement))] // Reads the running state
-    [RequireComponent(typeof(Noise))] // Sends noise through Senses
     public class PlayerNoise : MonoBehaviour // Noise layer of the player
     {
-        [Tooltip("Noise released while running, in dB (Senses). 80 dB is the package default. Tune by ear; the GDD target is about 8 m.")]
-        [SerializeField] float m_runNoiseDb = 80f; // Noise strength while running
+        [Tooltip("How far enemies hear Ollie running, in meters.")]
+        [SerializeField] float m_runNoiseRadius = 5f; // Run noise range
         [Tooltip("Seconds between noise pulses while running.")]
         [SerializeField] float m_runNoiseInterval = 0.4f; // Time between pulses
+        [Tooltip("Debug: write a console line every time Ollie makes noise.")]
+        [SerializeField] bool m_logNoise = true; // Console feedback while testing
 
         PlayerMovement m_movement; // Cached movement script
-        Noise m_noise; // Cached Senses noise component
         float m_timer; // Countdown to the next pulse
 
-        // Caches the movement and noise components.
+        public float RunNoiseRadius => m_runNoiseRadius; // For the enemy hearing debug circle
+        public float CurrentNoiseRadius => m_movement && m_movement.IsRunning ? m_runNoiseRadius : 0f; // For the debug ring and HUD
+
+        // Caches the movement component.
         void Awake()
         {
             m_movement = GetComponent<PlayerMovement>(); // Required component
-            m_noise = GetComponent<Noise>(); // Required component
         }
 
-        // Releases a noise pulse every interval while Ollie runs on the ground.
+        // Emits a noise pulse every interval while Ollie runs on the ground.
         void Update()
         {
             if (!m_movement.IsRunning || !m_movement.IsGrounded) // Not running or in the air
@@ -39,7 +42,8 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_timer -= Time.deltaTime; // Count down
             if (m_timer > 0f) return; // Not time yet
 
-            m_noise.ReleaseNoise(m_runNoiseDb); // Tell nearby enemies through Senses
+            NoiseEvents.Emit(transform.position, m_runNoiseRadius, NoiseSource.Footsteps); // Enemies within the radius hear this point
+            if (m_logNoise) Debug.Log($"[PlayerNoise] Run noise {m_runNoiseRadius} m at {transform.position} (running={m_movement.IsRunning}, crouching={m_movement.IsCrouching}, speed={m_movement.CurrentSpeed:0.0})", this); // Debug
             m_timer = m_runNoiseInterval; // Restart the countdown
         }
     }
