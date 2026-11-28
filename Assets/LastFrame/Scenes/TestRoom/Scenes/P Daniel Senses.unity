@@ -82024,6 +82024,8 @@ MonoBehaviour:
   m_hearingSenses: {fileID: 0}
   m_hearFactions: 0100000000000000
   m_arriveDistance: 0.6
+  m_giveUpBlockedTime: 0.5
+  m_giveUpExtraDistance: 1.5
 --- !u!195 &1594324674
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -154524,6 +154526,8 @@ MonoBehaviour:
   m_hearingSenses: {fileID: 0}
   m_hearFactions: 0100000000000000
   m_arriveDistance: 0.6
+  m_giveUpBlockedTime: 0.5
+  m_giveUpExtraDistance: 1.5
 --- !u!195 &8744300560671096148
 NavMeshAgent:
   m_ObjectHideFlags: 0

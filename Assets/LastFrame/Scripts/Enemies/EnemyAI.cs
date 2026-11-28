@@ -51,8 +51,12 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         [Tooltip("Factions whose noises the enemy reacts to: Ollie (Faction1) and noise traps / distractions (None).")]
         [SerializeField] FactionNames[] m_hearFactions = { FactionNames.Faction1, FactionNames.None }; // Ollie + objects that make noise
         [SerializeField] float m_arriveDistance = 0.6f; // Distance that counts as "arrived"
+        [Tooltip("If the sprite wall guard blocks the enemy this long near its destination, the point counts as reached (it is behind a wall from the camera view).")]
+        [SerializeField] float m_giveUpBlockedTime = 0.5f; // Seconds blocked before giving up on a point
+        [SerializeField] float m_giveUpExtraDistance = 1.5f; // Extra distance accepted when blocked (meters)
 
         NavMeshAgent m_agent; // Cached NavMeshAgent
+        SpriteWallGuard m_wallGuard; // Optional: keeps the sprite out of walls (issue #27)
         Senses m_senses; // Cached Senses component
         int m_patrolIndex; // Current patrol point
         float m_stateTimer; // Generic timer used by each state
@@ -87,6 +91,7 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         void Awake()
         {
             m_agent = GetComponent<NavMeshAgent>(); // Required component
+            m_wallGuard = GetComponent<SpriteWallGuard>(); // Optional sprite vs wall guard
             m_senses = GetComponent<Senses>(); // Required component
             if (!m_hearingSenses) foreach (var child in GetComponentsInChildren<Senses>()) if (child != m_senses) { m_hearingSenses = child; break; } // Child "Ears" if any
             if (!m_hearingSenses) m_hearingSenses = m_senses; // Fall back to the main Senses (demo sentries that only hear)
@@ -295,7 +300,8 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         bool HasArrived()
         {
             if (!m_agent.isOnNavMesh || m_agent.pathPending) return false; // Still calculating
-            return m_agent.remainingDistance <= m_arriveDistance; // Close enough
+            if (m_agent.remainingDistance <= m_arriveDistance) return true; // Close enough
+            return m_wallGuard && m_wallGuard.BlockedTime >= m_giveUpBlockedTime && m_agent.remainingDistance <= m_arriveDistance + m_giveUpExtraDistance; // Point is in the blocked band near a wall
         }
 
         // Receives a hit from Ollie: one ink drop or one corrector hit erases the enemy (team decision 26/11).
