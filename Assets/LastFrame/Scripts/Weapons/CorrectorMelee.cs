@@ -21,10 +21,13 @@ namespace LastFrame.Weapons // Weapon scripts of Last Frame
 
         public bool LastWasBackstab { get; private set; } // For feedback / debug
 
+        // Ollie: the object with the WeaponSwitcher. transform.root fails when Ollie is inside a scene folder (e.g. "--- Gameplay ---").
+        Transform Owner { get { var s = GetComponentInParent<WeaponSwitcher>(); return s ? s.transform : transform.root; } } // Player root
+
         // Finds the closest target in front and hits it.
         protected override bool PerformAttack()
         {
-            Transform owner = transform.root; // Player root
+            Transform owner = Owner; // Ollie (not the scene root)
             Vector3 center = owner.position + Vector3.up * 0.9f + owner.forward * (m_range * 0.5f); // Sphere in front of Ollie
             int count = Physics.OverlapSphereNonAlloc(center, m_range, m_hits, m_hitLayers, QueryTriggerInteraction.Ignore); // Nearby colliders
 
@@ -33,7 +36,7 @@ namespace LastFrame.Weapons // Weapon scripts of Last Frame
             float bestDistance = float.MaxValue; // Its distance
             for (int i = 0; i < count; i++) // Check every collider
             {
-                if (m_hits[i].transform.root == owner) continue; // Skip Ollie
+                if (m_hits[i].transform.IsChildOf(owner)) continue; // Skip Ollie
                 var target = m_hits[i].GetComponentInParent<IDamageable>(); // Damageable on it or its parents
                 if (target == null) continue; // Not hittable
                 Transform t = ((Component)target).transform; // Target transform
@@ -68,7 +71,7 @@ namespace LastFrame.Weapons // Weapon scripts of Last Frame
         // Draws the hit area in the Scene view when the player is selected.
         void OnDrawGizmosSelected()
         {
-            Transform owner = transform.root; // Player root
+            Transform owner = Owner; // Ollie (not the scene root)
             Gizmos.color = new Color(1f, 1f, 1f, 0.25f); // Soft white
             Gizmos.DrawWireSphere(owner.position + Vector3.up * 0.9f + owner.forward * (m_range * 0.5f), m_range); // Hit sphere
         }
