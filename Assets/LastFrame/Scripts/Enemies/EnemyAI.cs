@@ -48,6 +48,8 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         [SerializeField, Range(1, 100)] int m_hearAwareness = 41; // Received dB needed to react to a noise
         [Tooltip("Optional second Senses (hearing only) on a child object, e.g. \"Ears\". Senses lowers sight awareness when sight and hearing share one component (Ollie's steps keep hitting it), like the demos that never mix them. Empty = the first child Senses, or this one.")]
         [SerializeField] Senses m_hearingSenses; // Ears: hearing-only Senses
+        [Tooltip("Child Senses with only smell (Ollie's ink trail, #8). Empty = a child named \"Nose\", else the main Senses.")]
+        [SerializeField] Senses m_smellSenses; // Nose: smell-only Senses
         [Tooltip("Factions whose noises the enemy reacts to: Ollie (Faction1) and noise traps / distractions (None).")]
         [SerializeField] FactionNames[] m_hearFactions = { FactionNames.Faction1, FactionNames.None }; // Ollie + objects that make noise
         [SerializeField] float m_arriveDistance = 0.6f; // Distance that counts as "arrived"
@@ -93,7 +95,9 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             m_agent = GetComponent<NavMeshAgent>(); // Required component
             m_wallGuard = GetComponent<SpriteWallGuard>(); // Optional sprite vs wall guard
             m_senses = GetComponent<Senses>(); // Required component
-            if (!m_hearingSenses) foreach (var child in GetComponentsInChildren<Senses>()) if (child != m_senses) { m_hearingSenses = child; break; } // Child "Ears" if any
+            if (!m_smellSenses) foreach (var child in GetComponentsInChildren<Senses>()) if (child != m_senses && child.name == "Nose") { m_smellSenses = child; break; } // Child "Nose" if any
+            if (!m_smellSenses) m_smellSenses = m_senses; // Fall back to the main Senses
+            if (!m_hearingSenses) foreach (var child in GetComponentsInChildren<Senses>()) if (child != m_senses && child != m_smellSenses) { m_hearingSenses = child; break; } // Child "Ears" if any
             if (!m_hearingSenses) m_hearingSenses = m_senses; // Fall back to the main Senses (demo sentries that only hear)
             if (m_hearingSenses != m_senses && m_hearingSenses.Use_Forgeting == false) Debug.LogWarning($"[EnemyAI] {name}: enable 'Able To Forget' on the Ears Senses too.", this); // Hearing awareness must fade
             if (!m_senses.Use_Forgeting) Debug.LogWarning($"[EnemyAI] {name}: enable 'Able To Forget' in Senses > Brain, otherwise the enemy never loses Ollie.", this); // Fading awareness is how we know she escaped
@@ -187,7 +191,7 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             HearAwareness = m_prevHearAwareness; // Expose for debug
 
             // Smell: a rise means a fresher scent node (e.g. Ollie bleeding ink).
-            bool smelled = m_senses.DidSmell(m_ollieTarget, m_suspicionAwareness, out float smell, out Vector3 scentPos, out _); // Ollie's trail
+            bool smelled = m_smellSenses.DidSmell(m_ollieTarget, m_suspicionAwareness, out float smell, out Vector3 scentPos, out _); // Ollie's trail
             if (smelled && smell > m_prevSmellAwareness + 0.01f) Investigate(scentPos, EnemyStimulus.Smelled); // Follow the trail
             m_prevSmellAwareness = smelled ? smell : 0f; // Remember for next frame
         }
@@ -319,6 +323,7 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             foreach (var c in GetComponentsInChildren<Collider>()) c.enabled = false; // No more hits or blocking
             m_senses.enabled = false; // Stop sensing
             if (m_hearingSenses) m_hearingSenses.enabled = false; // Stop hearing too
+            if (m_smellSenses) m_smellSenses.enabled = false; // Stop smelling too
             Vector3 start = transform.localScale; // Normal size
             Vector3 end = new Vector3(start.x * 1.3f, 0.05f, start.z * 1.3f); // Puddle size
             float t = 0f; // Animation time

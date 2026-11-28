@@ -26,6 +26,8 @@ namespace LastFrame.Player // Player scripts of Last Frame
         [SerializeField] InkAmmo m_ammo; // Source of the ink amount
         [Tooltip("Optional: shows the Senses total stealth % and the eye state (proposal for the HUD stealth eye).")]
         [SerializeField] Stealth m_stealth; // Source of the total stealth buff (base + light + grass)
+        [Tooltip("Optional: shows the hearts and the ink bleeding time (issue #8).")]
+        [SerializeField] PlayerHealth m_health; // Source of hearts and bleeding
 
         [Header("Colors")] // Inspector group title
         [SerializeField] Color m_idleColor = new Color(0.85f, 0.85f, 0.85f); // Light gray when standing still
@@ -66,6 +68,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
             if (!m_weapons) m_weapons = GetComponentInParent<WeaponSwitcher>(); // Weapons are on the Player root
             if (!m_ammo) m_ammo = GetComponentInParent<InkAmmo>(); // Ink is on the Player root
             if (!m_stealth) m_stealth = GetComponentInParent<Stealth>(); // Senses Stealth is on the Player root
+            if (!m_health) m_health = GetComponentInParent<PlayerHealth>(); // Hearts are on the Player root
             if (!m_scaleRoot && m_sprite) m_scaleRoot = m_sprite.transform; // Default squash target
             if (m_scaleRoot) m_baseScale = m_scaleRoot.localScale; // Remember standing size
         }
@@ -115,6 +118,14 @@ namespace LastFrame.Player // Player scripts of Last Frame
             return $"<size=60%><color=#{ColorUtility.ToHtmlStringRGB(color)}>SIGILO {Mathf.RoundToInt(stealth * 100f)}% · {eye}</color></size>"; // Colored line
         }
 
+        // Hearts as full/empty symbols plus the bleeding seconds left.
+        string HealthText()
+        {
+            string hearts = new string('♥', m_health.Hearts) + "<alpha=#40>" + new string('♥', m_health.MaxHearts - m_health.Hearts) + "<alpha=#FF>"; // Full hearts, then faded empty ones (the font has no ♡)
+            string bleed = m_health.IsDead ? " · BORRADA" : m_health.IsBleeding ? $" · SANGRA {Mathf.CeilToInt(m_health.BleedTimeLeft)}s" : ""; // State
+            return $"<size=60%><color=#E04848>{hearts}{bleed}</color></size>"; // Red line
+        }
+
         // Writes "STATE" plus "WEAPON · ink" on a second line, only when something changed.
         void UpdateLabel()
         {
@@ -127,6 +138,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
                 text += "</size>"; // Close size tag
             }
             if (m_stealth) text += "\n" + StealthText(); // "SIGILO 67% · OJO CERRADO"
+            if (m_health) text += "\n" + HealthText(); // "♥♥♥ · SANGRA 4s" (empty hearts faded)
             if (text == m_lastLabel) return; // Nothing new
             m_lastLabel = text; // Remember it
             m_label.text = text; // Write it

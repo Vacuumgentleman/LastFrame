@@ -57,6 +57,8 @@ namespace LastFrame.Player // Player scripts of Last Frame
         public bool IsMoving { get; private set; } // True when there is movement input
         public bool IsGrounded => m_controller.isGrounded; // True when touching the ground
         public float CurrentSpeed => m_speed; // Current horizontal speed for other scripts
+        /// <summary>Multiplies every speed (1 = normal). PlayerHealth sets it while Ollie bleeds ink.</summary>
+        public float SpeedMultiplier { get; set; } = 1f; // Slow downs from other systems
 
         public event Action<bool> OnCrouchChanged; // Raised when Ollie crouches or stands up
 
@@ -142,6 +144,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
             IsRunning = IsMoving && m_input.SprintHeld && !IsCrouching; // Run only when moving and standing
 
             float targetSpeed = !IsMoving ? 0f : IsRunning ? m_runSpeed : IsCrouching ? m_crouchSpeed : m_walkSpeed; // Pick speed for the state
+            targetSpeed *= SpeedMultiplier; // Bleeding or other slow downs
             m_speed = Mathf.MoveTowards(m_speed, targetSpeed, m_speedChangeRate * Time.deltaTime * Mathf.Max(1f, m_runSpeed)); // Accelerate or slow down
 
             Vector3 moveDir = Vector3.zero; // Horizontal direction this frame
