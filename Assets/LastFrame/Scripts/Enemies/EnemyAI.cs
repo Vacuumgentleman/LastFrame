@@ -61,6 +61,8 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         SpriteWallGuard m_wallGuard; // Optional: keeps the sprite out of walls (issue #27)
         Senses m_senses; // Cached Senses component
         int m_patrolIndex; // Current patrol point
+        Vector3 m_postPosition; // Where a guard without route stands (its start)
+        Quaternion m_postRotation; // Where it looks while standing guard
         float m_stateTimer; // Generic timer used by each state
         float m_lastSeenTime; // Time when Ollie was last seen
         float m_nextAttackTime; // Time when the eraser can hit again
@@ -93,6 +95,8 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
         void Awake()
         {
             m_agent = GetComponent<NavMeshAgent>(); // Required component
+            m_postPosition = transform.position; // Guard post (used when there is no route)
+            m_postRotation = transform.rotation; // Facing at the post
             m_wallGuard = GetComponent<SpriteWallGuard>(); // Optional sprite vs wall guard
             m_senses = GetComponent<Senses>(); // Required component
             if (!m_smellSenses) foreach (var child in GetComponentsInChildren<Senses>()) if (child != m_senses && child.name == "Nose") { m_smellSenses = child; break; } // Child "Nose" if any
@@ -205,10 +209,18 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
             SetState(EnemyState.Investigate); // Show "?" and walk there
         }
 
+        // Static guard: once back at the post, turns to its original facing.
+        void StandGuard()
+        {
+            if (!HasArrived()) return; // Still walking back
+            if (m_agent.isOnNavMesh && m_agent.hasPath) m_agent.ResetPath(); // Stop at the post
+            transform.rotation = Quaternion.Slerp(transform.rotation, m_postRotation, 5f * Time.deltaTime); // Look where it was looking
+        }
+
         // Walks between patrol points and waits a moment at each one.
         void UpdatePatrol()
         {
-            if (m_patrolPoints == null || m_patrolPoints.Length == 0) return; // No route: stand guard
+            if (m_patrolPoints == null || m_patrolPoints.Length == 0) { StandGuard(); return; } // No route: back to the post
             if (!HasArrived()) return; // Still walking
 
             m_stateTimer -= Time.deltaTime; // Waiting at the point
@@ -276,6 +288,7 @@ namespace LastFrame.Enemies // Enemy scripts of Last Frame
                     LastStimulus = EnemyStimulus.None; // No target any more
                     m_stateTimer = 0f; // Leave the current point right away
                     if (m_patrolPoints != null && m_patrolPoints.Length > 0) GoTo(m_patrolPoints[m_patrolIndex].position, m_patrolSpeed); // Resume route
+                    else GoTo(m_postPosition, m_patrolSpeed); // Static guard: walk back to the post
                     break;
                 case EnemyState.Investigate: // Go to a point of interest
                     m_stateTimer = m_lookAroundTime; // Look-around time on arrival
