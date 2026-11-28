@@ -31322,8 +31322,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c495b138e3928d64f897ce0659072d2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LastFrame.Player.InkAmmo
-  m_startInk: 5
-  m_maxInk: 10
+  m_startInk: 3
+  m_maxInk: 3
+  m_hud: {fileID: 0}
 --- !u!114 &580076599
 MonoBehaviour:
   m_ObjectHideFlags: 0
