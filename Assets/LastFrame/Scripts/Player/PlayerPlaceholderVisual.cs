@@ -139,6 +139,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
             }
             if (m_stealth) text += "\n" + StealthText(); // "SIGILO 67% · OJO CERRADO"
             if (m_health) text += "\n" + HealthText(); // "♥♥♥ · SANGRA 4s" (empty hearts faded)
+            if (Collectibles.MemoryTape.HasTapeOfThisSet) text += "\n<size=60%><color=#F2C14E>CINTA: " + Collectibles.MemoryTape.CurrentMemory + "</color></size>"; // Tape of this set (#10)
             if (text == m_lastLabel) return; // Nothing new
             m_lastLabel = text; // Remember it
             m_label.text = text; // Write it
