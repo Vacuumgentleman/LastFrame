@@ -8,6 +8,114 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/LastFrame/Scenes/TestRoom/Scenes/SensesTestRoom.unity
     guid: fbdec8ad3503ad747b85c3d963f4e3a4
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v2/Prototype 1 v2.unity
+    guid: 7dca365adc8034e4fa6e8ee3984b2e39
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v2/Prototype 2 v2.unity
+    guid: 42b7a2dabebddbe4b9c75a80826aef6c
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v2/Prototype 3 v2.unity
+    guid: ea436d7df0e73544aa44a87045560174
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v2/Prototype 4 v2.unity
+    guid: 93577bfad2aa19f4fb5a53ac14ff292f
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v2/Prototype 5 v2.unity
+    guid: 75bb9c664ba063941908b94e462c7e60
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v3/Prototype 1 v3.unity
+    guid: 597ab8d77a8ea014a90648d92084841d
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v3/Prototype 2 v3.unity
+    guid: 7ebad45e768186049b20c82550bb73a3
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v3/Prototype 3 v3.unity
+    guid: 4589ef353401fc14ba0c33b136ad0166
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v3/Prototype 4 v3.unity
+    guid: 6d17282c5dd8fb64a8197d8d67d4184c
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v3/Prototype 5 v3.unity
+    guid: 40c2ad42271396245a0ab21a0edf022b
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v4/Prototype 1 v4.unity
+    guid: 73d2d34d6e5ca1d4eb4cc1b7b954d389
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v4/Prototype 2 v4.unity
+    guid: 07408873d4bf89544a9be84e55422446
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v4/Prototype 3 v4.unity
+    guid: 0e68c1f757b9d054183c148372e71512
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v4/Prototype 4 v4.unity
+    guid: 5f5c4e816c67d8445b577264af130861
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v4/Prototype 5 v4.unity
+    guid: 1f5b53012eb967141b5294af99a51efa
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v5/Prototype 1 v5.unity
+    guid: b74c0a3fe9b6a5e42a460afb83acd1f6
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v5/Prototype 2 v5.unity
+    guid: 671d2272110eb8b46b7eb55641d1cbea
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v5/Prototype 3 v5.unity
+    guid: 26d623c68acb0fb46a96e2f8b56fa87e
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v5/Prototype 4 v5.unity
+    guid: 275975775a7ca2d4992806acc81f02c4
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v5/Prototype 5 v5.unity
+    guid: 1a71cf41ac38702459df6faf1a82fd40
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v6/Prototype 1 v6.unity
+    guid: 7180c6e5c6286b7408238030266fda83
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v6/Prototype 1 v6 (look v5).unity
+    guid: c90fdd1fe3eabe040b2d72703ab4483d
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v7/Prototype 1 v7a.unity
+    guid: a1714c4866c239f49b837f036d02b6c7
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v7/Prototype 1 v7b.unity
+    guid: 2de0e79f2d0887f4ab303454e2f8917c
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v7/Prototype 1 v7c.unity
+    guid: 638875ebe31b5984baeb7cbfa0599ee5
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v7/Prototype 1 v7d.unity
+    guid: 7d8c383ac4b974a40801a9ce1e948b26
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v8/Prototype 1 v8a.unity
+    guid: 61761a69d828c854c834c5d749e2e828
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v8/Prototype 1 v8b.unity
+    guid: 6c07f21014b23b2469fa5f65365216f3
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v8/Prototype 1 v8c.unity
+    guid: 452a163984ff9764ea0d99ff81bb4cb1
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v8/Prototype 1 v8d.unity
+    guid: b30dea574d4e3fd4ca78036e398fa488
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v9/Prototype 1 v9.unity
+    guid: afdc9974b518a1f48a3fe075313e5c78
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v10/Prototype 1 v10.unity
+    guid: 52950bccf70ff804787ad48320d02800
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v10/Prototype 2 v10.unity
+    guid: f58bfff0ba7465642bd4db3ead30def1
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v10/Prototype 3 v10.unity
+    guid: 2459682061605b343a1d11461ed78d30
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v10/Prototype 4 v10.unity
+    guid: fd367f7f8c3768d44b174adf78b007e4
+  - enabled: 0
+    path: Assets/LastFrame/Scenes/Prototypes/v10/Prototype 5 v10.unity
+    guid: 72cbc6377d5ccef49a0485d3914490a9
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
