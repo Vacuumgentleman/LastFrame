@@ -26,6 +26,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
         InputAction m_crouch; // Ctrl / gamepad east button
         InputAction m_attack; // Left click / gamepad west button
         InputAction m_switchWeapon; // Q / gamepad right shoulder
+        InputAction m_interact; // E / gamepad north button (pick up, doors)
         InputAction m_pointer; // Mouse position on screen
 
         public Vector2 Move { get; private set; } // Movement input, magnitude 0 to 1
@@ -34,6 +35,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
         public bool CrouchPressedThisFrame { get; private set; } // True only on the frame the crouch key goes down
         public bool AttackPressedThisFrame { get; private set; } // True only on the frame left click goes down
         public bool SwitchWeaponPressedThisFrame { get; private set; } // True only on the frame Q goes down
+        public bool InteractPressedThisFrame { get; private set; } // True only on the frame E goes down
         public Vector2 PointerPosition { get; private set; } // Mouse position in screen pixels (for aiming)
         public CrouchMode CrouchMode => m_crouchMode; // Read-only access to the crouch mode
 
@@ -72,6 +74,10 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_switchWeapon.AddBinding("<Keyboard>/q"); // Q (GDD)
             m_switchWeapon.AddBinding("<Gamepad>/rightShoulder"); // Gamepad RB / R1
 
+            m_interact = new InputAction("Interact", InputActionType.Button); // Interact action
+            m_interact.AddBinding("<Keyboard>/e"); // E (GDD)
+            m_interact.AddBinding("<Gamepad>/buttonNorth"); // Gamepad Y / Triangle
+
             m_pointer = new InputAction("Pointer", InputActionType.PassThrough, "<Pointer>/position"); // Mouse or touch position
         }
 
@@ -83,6 +89,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_crouch.Enable(); // Start reading crouch
             m_attack.Enable(); // Start reading attack
             m_switchWeapon.Enable(); // Start reading weapon switch
+            m_interact.Enable(); // Start reading interact
             m_pointer.Enable(); // Start reading mouse position
         }
 
@@ -94,10 +101,11 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_crouch.Disable(); // Stop reading crouch
             m_attack.Disable(); // Stop reading attack
             m_switchWeapon.Disable(); // Stop reading weapon switch
+            m_interact.Disable(); // Stop reading interact
             m_pointer.Disable(); // Stop reading mouse position
             Move = Vector2.zero; // No movement while disabled
             SprintHeld = CrouchHeld = CrouchPressedThisFrame = false; // No buttons while disabled
-            AttackPressedThisFrame = SwitchWeaponPressedThisFrame = false; // No attack or switch while disabled
+            AttackPressedThisFrame = SwitchWeaponPressedThisFrame = InteractPressedThisFrame = false; // No attack, switch or interact while disabled
         }
 
         // Frees the input actions when the object is destroyed.
@@ -108,6 +116,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
             m_crouch?.Dispose(); // Release crouch action
             m_attack?.Dispose(); // Release attack action
             m_switchWeapon?.Dispose(); // Release weapon switch action
+            m_interact?.Dispose(); // Release interact action
             m_pointer?.Dispose(); // Release pointer action
         }
 
@@ -120,6 +129,7 @@ namespace LastFrame.Player // Player scripts of Last Frame
             CrouchPressedThisFrame = m_crouch.WasPressedThisFrame(); // Crouch key just pressed
             AttackPressedThisFrame = m_attack.WasPressedThisFrame(); // Left click just pressed
             SwitchWeaponPressedThisFrame = m_switchWeapon.WasPressedThisFrame(); // Q just pressed
+            InteractPressedThisFrame = m_interact.WasPressedThisFrame(); // E just pressed
             PointerPosition = m_pointer.ReadValue<Vector2>(); // Current mouse position
         }
 
