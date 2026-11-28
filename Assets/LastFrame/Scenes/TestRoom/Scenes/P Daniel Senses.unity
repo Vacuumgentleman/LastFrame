@@ -8869,6 +8869,68 @@ Transform:
   - {fileID: 876991697}
   m_Father: {fileID: 1643590684}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &190449696
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 190449698}
+  - component: {fileID: 190449697}
+  m_Layer: 0
+  m_Name: GameOver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &190449697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190449696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ead86f382fcd2024882205f7cc262e00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LastFrame.Core.GameOverSequence
+  m_player: {fileID: 0}
+  m_eraseDuration: 1
+  m_ollieSprites: []
+  m_erasedFrame: {fileID: 0}
+  m_frameTitle: BORRADA
+  m_framePlaceholder: '[ Cuadro provisional ]
+
+    Las caricaturas de IA borran a
+    Ollie con sus borradores.'
+  m_frameDuration: 3
+  m_scoreTitle: PUNTAJE
+  m_scoreDuration: 6
+  m_startScene: 
+  m_continueHint: Pulsa cualquier tecla para continuar
+  m_minTimeBeforeSkip: 0.5
+  m_background: {r: 0.04, g: 0.04, b: 0.07, a: 0.96}
+  m_textColor: {r: 0.95, g: 0.93, b: 0.88, a: 1}
+  m_sortingOrder: 100
+--- !u!4 &190449698
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190449696}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &190597651
 GameObject:
   m_ObjectHideFlags: 0
@@ -161705,3 +161767,4 @@ SceneRoots:
   - {fileID: 580076586}
   - {fileID: 860104904}
   - {fileID: 669926135}
+  - {fileID: 190449698}
